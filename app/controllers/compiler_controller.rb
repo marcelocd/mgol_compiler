@@ -1,4 +1,3 @@
 class CompilerController < ActionController::Base
-  def home
-  end
+  def home ; end
 end
