@@ -8,7 +8,7 @@ class Cursor
 	end
 
 	def update_position current_character
-		index += 1
+    index += 1
     if current_character.match(/\n/)
       line += 1
       column = 1
