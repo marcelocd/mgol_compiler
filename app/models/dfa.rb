@@ -101,7 +101,9 @@ class Dfa
 	end
 
   def transition_key character, state
-    if state == 's7'
+    if character.nil?
+      'EOF'
+    elsif state == 's7'
       return character if character == "\""
       'NON_DOUBLE_QUOTES'
     elsif state == 's10'
