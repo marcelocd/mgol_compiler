@@ -1,10 +1,11 @@
 class LexicalAnalyzer
-  attr_accessor :source_code
+  attr_accessor :source_code, :cursor, :dfa,
+                :current_state, :current_character, :buffer
 
   def initialize args
     @source_code = args[:source_code]
-    @dfa = Dfa.new
     @cursor = Cursor.new
+    @dfa = Dfa.new
     @current_state = Dfa::INITIAL_STATE
     @current_character = source_code[cursor.index]
     @buffer = ''
@@ -15,33 +16,13 @@ class LexicalAnalyzer
 
     token = get_next_token
 
-    # Implement error tokens treatment!
+    treat_error if an_error_was_found?(token)
     reset_current_state
     clean_buffer
     token
   end
 
   private
-
-  def get_next_token
-    if eof_has_been_reached?
-      update_current_state
-      return token_by_current_state
-    end
-
-    process_lexeme
-    token_by_current_state
-  end
-
-  def process_lexeme
-    while (!current_character_is_ignorable? &&
-           !current_character_is_a_delimiter? &&
-           !eof_has_been_reached?)
-      process_current_character
-      cursor.update_position(current_character)
-      update_current_character
-    end
-  end
 
   def jump_ignorable_characters
     while current_character_is_ignorable?
@@ -50,23 +31,60 @@ class LexicalAnalyzer
     end
   end
 
+  def get_next_token
+    if eof_has_been_reached?
+      update_current_state
+    elsif current_character_is_a_delimiter?
+      process_current_character
+    elsif lexeme_might_be_a_literal_or_a_comment?
+      process_potential_literal_or_comment
+    else
+      process_lexeme
+    end
+
+    token_by_current_state
+  end
+
+  def lexeme_might_be_a_literal_or_comment?
+    current_character_is_double_quotes? ||
+    current_character_is_open_braces?
+  end
+
+  def current_character_is_double_quotes?
+    current_character == "\""
+  end
+
+  def current_character_is_open_braces?
+    current_character == '{'
+  end
+
+  def current_character_is_close_braces?
+    current_character == '}'
+  end
+
+  def reset_current_state
+    current_state = Dfa::INITIAL_STATE
+  end
+
+  def clean_buffer
+    buffer = ''
+  end
+
   def current_character_is_ignorable?
     return true if current_character.match(/[\s\t\n]/)
     false
   end
 
-  def current_character_is_a_delimiter?
-    return true if current_character.match(/[,\.]/)
-    false
+  def update_current_character
+    current_character = source_code[cursor.index]
   end
 
   def eof_has_been_reached?
     current_character.nil?
   end
 
-  def process_current_character
-    add_current_character_to_buffer
-    update_current_state
+  def update_current_state
+    current_state = next_state
   end
 
   def token_by_current_state
@@ -105,16 +123,52 @@ class LexicalAnalyzer
     Token.new(token_class: token_class, lexeme: buffer)
 	end
 
-  def add_current_character_to_buffer
-    buffer += current_character
+  def treat_error ; end
+
+  def an_error_was_found? token
+    token.token_class == 'ERRO'
   end
 
-  def update_current_state
-    current_state = next_state
+  def process_potential_literal_or_comment
+    if current_character_is_double_quotes?
+      process_potential_literal
+    elsif current_character_is_open_braces?
+      process_potential_comment
+    end
   end
 
-  def update_current_character
-    current_character = source_code[cursor.index]
+  def process_potential_literal
+    process_current_character
+
+    while(!current_character_is_double_quotes? &&
+          !eof_has_been_reached?)
+      process_current_character
+    end
+
+    process_lexeme
+  end
+
+  def process_potential_comment
+    process_current_character
+
+    while(!current_character_is_close_braces? &&
+          !eof_has_been_reached?)
+      process_current_character
+    end
+
+    process_lexeme
+  end
+
+  def process_lexeme
+    while(!lexeme_is_done_being_processed?)
+      process_current_character
+    end
+  end
+
+  def lexeme_is_done_being_processed?
+    current_character_is_ignorable? ||
+    current_character_is_a_delimiter? ||
+    eof_has_been_reached?
   end
 
   def next_state
@@ -127,11 +181,19 @@ class LexicalAnalyzer
     end
   end
 
-  def reset_current_state
-    current_state = Dfa::INITIAL_STATE
+  def current_character_is_a_delimiter?
+    return true if current_character.match(/[,\.]/)
+    false
   end
 
-  def clean_buffer
-    buffer = ''
+  def process_current_character
+    add_current_character_to_buffer
+    update_current_state
+    cursor.update_position(current_character)
+    update_current_character
+  end
+
+  def add_current_character_to_buffer
+    buffer += current_character
   end
 end

@@ -8,6 +8,7 @@ class Cursor
 	end
 
 	def update_position current_character
+    return if current_character.nil?
     index += 1
     if current_character.match(/\n/)
       line += 1
