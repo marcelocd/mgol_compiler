@@ -9,12 +9,12 @@ class Cursor
 
 	def update_position current_character
     return if current_character.nil?
-    index += 1
+    @index += 1
     if current_character.match(/\n/)
-      line += 1
-      column = 1
+      @line += 1
+      @column = 1
     else
-      column += 1
+      @column += 1
     end
 	end
 end

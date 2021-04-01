@@ -115,6 +115,8 @@ class Dfa
       return character if state.in?(['s1', 's3']) &&
                           character.in?(['e', 'E'])
       'L'
+    elsif character.match(/[,\.]/)
+      character
     end
   end
 end

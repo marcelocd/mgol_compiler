@@ -1,2 +1,24 @@
-<% token = @lexical_analyzer.scan %>
-<h1><%= token.token_class %></h1>
+<%= form_tag(current_uri, method: "get") do %>
+  <div class="form-group">
+    <%= label_tag 'Source Code' %>:&nbsp;&nbsp;&nbsp;
+    <button type="submit">
+      <%= 'Run' %>
+    </button>
+    <p>
+      <%= text_area_tag :source_code, @lexical_analyzer.source_code, class: 'test', rows: 70, cols: 50 %>
+      <textarea rows="70" cols="50" readonly>
+        <% if !@lexical_analyzer.source_code.blank? %>
+          <% while(!@lexical_analyzer.current_character.nil?) %>
+            <% token = @lexical_analyzer.scan %>
+            <%= "class: #{token.token_class}" %>
+            <%= "lexeme: #{token.lexeme}"  %>
+            _____________________________
+          <% end %>
+          <% token = @lexical_analyzer.scan %>
+          <%= "class: #{token.token_class}" %>
+          <%= "lexeme: #{token.lexeme}"  %>
+        <% end %>
+      </textarea>
+    </p>
+  </div>
+<% end %>
