@@ -5,19 +5,16 @@
       <%= 'Run' %>
     </button>
     <p>
-      <%= text_area_tag :source_code, @lexical_analyzer.source_code, class: 'test', rows: 70, cols: 50 %>
-      <textarea rows="70" cols="50" readonly>
-        <% if !@lexical_analyzer.source_code.blank? %>
-          <% while(!@lexical_analyzer.current_character.nil?) %>
-            <% token = @lexical_analyzer.scan %>
-            <%= "class: #{token.token_class}" %>
-            <%= "lexeme: #{token.lexeme}"  %>
-            _____________________________
-          <% end %>
-          <% token = @lexical_analyzer.scan %>
+      <%= text_area_tag :source_code, @lexical_analyzer.source_code,
+                                      class: 'test',
+                                      rows: 50,
+                                      cols: 50 %>
+      <textarea rows="50" cols="50" readonly>
+        <% @tokens.each do |token| %>
+          <%= "lexeme: #{token.lexeme}" %>
           <%= "class: #{token.token_class}" %>
-          <%= "lexeme: #{token.lexeme}"  %>
-        <% end %>
+          ___________________________
+        <% end if !@tokens.blank? %>
       </textarea>
     </p>
   </div>
