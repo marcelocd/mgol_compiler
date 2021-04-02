@@ -4,6 +4,6 @@ class Token
 	def initialize args
     @token_class = args[:token_class]
     @lexeme = args[:lexeme]
-    @type = args[:type]
+    @type = 'NULL'
 	end
 end

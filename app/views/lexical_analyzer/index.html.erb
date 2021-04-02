@@ -9,11 +9,9 @@
                                       class: 'test',
                                       rows: 50,
                                       cols: 50 %>
-      <textarea rows="50" cols="50" readonly>
+      <textarea rows="50" cols="70" readonly>
         <% @tokens.each do |token| %>
-          <%= "lexeme: #{token.lexeme}" %>
-          <%= "class: #{token.token_class}" %>
-          ___________________________
+          <%= "Classe: #{token.token_class}, Lexema: #{token.lexeme}, Tipo: #{token.type}" %>
         <% end if !@tokens.blank? %>
       </textarea>
     </p>
