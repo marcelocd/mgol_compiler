@@ -17,14 +17,16 @@ class LexicalAnalyzer
 
     token = get_next_token
 
-    puts '-' * 99
-    puts 'A TOKEN WAS FOUND'
-    puts '-' * 99
+    log('A TOKEN WAS FOUND')
 
     treat_error if an_error_was_found?(token)
     reset_current_state
     clean_buffer
     token
+  end
+
+  def eof_has_been_reached?
+    @current_character.nil?
   end
 
   def print_info
@@ -98,10 +100,6 @@ class LexicalAnalyzer
 
   def update_current_character
     @current_character = @source_code[@cursor.index]
-  end
-
-  def eof_has_been_reached?
-    @current_character.nil?
   end
 
   def update_current_state
@@ -204,7 +202,7 @@ class LexicalAnalyzer
 
   def current_character_is_a_delimiter?
     return true if !@current_character.nil? &&
-                   @current_character.match(/[,\.]/)
+                   @current_character.match(/[,;]/)
     false
   end
 
@@ -218,5 +216,11 @@ class LexicalAnalyzer
 
   def add_current_character_to_buffer
     @buffer += @current_character
+  end
+
+  def log message
+    puts '-' * 99
+    puts 'A TOKEN WAS FOUND'
+    puts '-' * 99
   end
 end
