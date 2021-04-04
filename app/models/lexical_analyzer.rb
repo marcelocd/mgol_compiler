@@ -1,11 +1,12 @@
 class LexicalAnalyzer
-  attr_accessor :source_code, :cursor, :dfa,
+  attr_accessor :dfa, :symbol_table, :source_code, :cursor,
                 :current_state, :current_character, :buffer
 
   def scan
     jump_ignorable_characters
-    print_info
     token = get_token
+    insert_token_in_symbol_table(token) if token_is_id?(token) &&
+                                           !token.in?(@symbol_table)
     treat_error if an_error_was_found?(token)
     reset_current_state
     clean_buffer
@@ -14,13 +15,36 @@ class LexicalAnalyzer
 
   private
 
-  def initialize args
+  def initialize args = {}
+    @dfa = Dfa.new
+    @symbol_table = symbol_table_initial_configuration
     @source_code = args[:source_code]
     @cursor = Cursor.new
-    @dfa = Dfa.new
     @current_state = Dfa::INITIAL_STATE
     @current_character = source_code[cursor.index]
     @buffer = ''
+  end
+
+  def symbol_table_initial_configuration
+    symbol_table = []
+    reserved_words.each do |reserved_word|
+      symbol_table << token_by_reserved_word(reserved_word)
+    end
+    symbol_table
+  end
+
+  def token_by_reserved_word reserved_word
+    Token.new(token_class: reserved_word,
+              lexeme: reserved_word,
+              type: 'NULL')
+  end
+
+  def insert_token_in_symbol_table(token)
+    @symbol_table << token
+  end
+
+  def token_is_id? token
+    token.token_class == 'id'
   end
 
   def jump_ignorable_characters
@@ -178,12 +202,6 @@ class LexicalAnalyzer
      'inteiro',
      'lit',
      'real']
-  end
-
-  def token_by_reserved_word reserved_word
-    Token.new(token_class: reserved_word,
-              lexeme: reserved_word,
-              type: 'NULL')
   end
 
   def token_by_current_state
