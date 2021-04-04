@@ -27,11 +27,7 @@ class LexicalAnalyzer
   end
 
   def symbol_table_initial_configuration
-    symbol_table = []
-    reserved_words.each do |reserved_word|
-      symbol_table << token_by_reserved_word(reserved_word)
-    end
-    symbol_table
+    reserved_words.map{ |reserved_word| token_by_reserved_word(reserved_word) }
   end
 
   def token_by_reserved_word reserved_word
