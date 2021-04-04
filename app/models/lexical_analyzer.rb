@@ -133,7 +133,6 @@ class LexicalAnalyzer
     update_current_state
     @cursor.update_position(@current_character)
     update_current_character
-    print_info
   end
 
   def lexeme_might_be_a_literal?
@@ -148,7 +147,7 @@ class LexicalAnalyzer
       process_current_character
     end
 
-    process_lexeme if !eof_has_been_reached?
+    process_lexeme
   end
 
   def lexeme_might_be_a_comment?
@@ -163,7 +162,7 @@ class LexicalAnalyzer
       process_current_character
     end
 
-    process_current_character if !eof_has_been_reached?
+    process_lexeme
   end
 
   def lexeme_might_be_a_relational_operator?
