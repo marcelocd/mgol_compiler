@@ -17,11 +17,15 @@ class LexicalAnalyzerController < ActionController::Base
 
   def tokens
     return @tokens = [] if source_code.blank?
-    
+
     @tokens = Array.new
     loop do
       @tokens << lexical_analyzer.scan
-      return @tokens if lexical_analyzer.eof_has_been_reached?
+      return @tokens if eof_has_been_reached?
     end
+  end
+
+  def eof_has_been_reached?
+    @tokens.last.token_class == 'EOF'
   end
 end
