@@ -10,6 +10,7 @@ class LexicalAnalyzer
     treat_error if an_error_was_found?(token)
     reset_current_state
     clean_buffer
+    return symbol_table_token(token) if token.in?(@symbol_table)
     token
   end
 
@@ -87,6 +88,12 @@ class LexicalAnalyzer
 
   def clean_buffer
     @buffer = ''
+  end
+
+  def symbol_table_token token
+    @symbol_table.each do |tk|
+      return tk if tk.lexeme == token.lexeme
+    end
   end
 
   def current_character_is_ignorable?
