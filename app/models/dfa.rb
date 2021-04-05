@@ -4,8 +4,6 @@ class Dfa
   EOF_STATE = 's12'
 	ERROR_STATE = 's28'
 
-  def initialize ; end
-
   def transition_table
 		{
       INITIAL_STATE => {
@@ -104,7 +102,7 @@ class Dfa
     if character.nil?
       'EOF'
     elsif state == 's7'
-      return character if character_is_double_quotes?(character)
+      return character if character == "\""
       'NON_DOUBLE_QUOTES'
     elsif state == 's10'
       return character if character == "}"
@@ -115,46 +113,8 @@ class Dfa
       return character if state.in?(['s1', 's3']) &&
                           character.in?(['e', 'E'])
       'L'
-    elsif character_is_a_delimiter?(character) ||
-          character_is_parenthesis?(character) ||
-          character_is_a_relational_operator?(character) ||
-          current_character_is_an_arithmetic_operator?(character) ||
-          character_is_double_quotes?(character) ||
-          character_is_open_braces?(character)
+    else
       character
     end
-  end
-
-  private
-
-  def character_is_a_delimiter? character
-    character == ',' ||
-    character == ';'
-  end
-
-  def character_is_parenthesis? character
-    character == '(' ||
-    character == ')'
-  end
-
-  def character_is_a_relational_operator? character
-    character == '>' ||
-    character == '<' ||
-    character == '='
-  end
-
-  def current_character_is_an_arithmetic_operator? character
-    character == '+' ||
-    character == '-' ||
-    character == '*' ||
-    character == '/'
-  end
-
-  def character_is_double_quotes? character
-    character == "\""
-  end
-
-  def character_is_open_braces? character
-    character == "{"
   end
 end

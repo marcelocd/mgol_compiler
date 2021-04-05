@@ -3,6 +3,9 @@ class LexicalAnalyzerController < ActionController::Base
     source_code
     lexical_analyzer
     tokens
+    lexical_analyzer.errors.each do |error|
+      flash[:errors] = error
+    end
   end
 
   private

@@ -1,9 +1,11 @@
 class LexicalAnalyzer
-  attr_accessor :dfa, :symbol_table, :source_code, :cursor,
-                :current_state, :current_character, :buffer
+  attr_accessor :dfa, :symbol_table, :source_code, :cursor, :buffer,
+                :current_state, :previous_state, :current_character,
+                :errors
 
   def scan
     jump_ignorable_characters
+    print_info
     token = get_token
     insert_token_in_symbol_table(token) if token_is_id?(token) &&
                                            !token.in?(@symbol_table)
@@ -21,9 +23,11 @@ class LexicalAnalyzer
     @symbol_table = symbol_table_initial_configuration
     @source_code = args[:source_code]
     @cursor = Cursor.new
-    @current_state = Dfa::INITIAL_STATE
-    @current_character = source_code[cursor.index]
     @buffer = ''
+    @current_state = Dfa::INITIAL_STATE
+    @previous_state = nil
+    @current_character = source_code[cursor.index]
+    @errors = Array.new
   end
 
   def symbol_table_initial_configuration
@@ -58,6 +62,8 @@ class LexicalAnalyzer
           current_character_is_a_delimiter? ||
           current_character_is_an_arithmetic_operator?
       process_current_character
+    elsif lexeme_might_be_a_numeral?
+      process_potential_numeral
     elsif lexeme_might_be_a_literal?
       process_potential_literal
     elsif lexeme_might_be_a_comment?
@@ -76,7 +82,33 @@ class LexicalAnalyzer
     token.token_class == 'ERRO'
   end
 
-  def treat_error ; end
+  def treat_error
+    message = nil
+    case @previous_state
+    when 's0'
+      message = error(1)
+    when 's1', 's2', 's5', 's6'
+      message = error(2)
+    when 's4'
+      message = error(3)
+    end
+    @errors << message
+    puts @errors.last
+  end
+
+  def error code
+    message = "ERRO#{code} - "
+    case code
+    when 1
+      message += 'Caractere inesperado na linguagem'
+    when 2
+      message += "Caractere inesperado em '#{@buffer}' ao invés de dígito"
+    when 3
+      message += "Caractere inesperado em '#{@buffer}'"
+      message += " ao invés de dígito ou sinal ('+', '-')"
+    end
+    message += ", linha #{@cursor.line}, coluna #{@cursor.column}"
+  end
 
   def reset_current_state
     @current_state = Dfa::INITIAL_STATE
@@ -133,6 +165,34 @@ class LexicalAnalyzer
     update_current_state
     @cursor.update_position(@current_character)
     update_current_character
+    print_info
+  end
+
+  def lexeme_might_be_a_numeral?
+    current_character_is_a_digit?
+  end
+
+  def current_character_is_a_digit?
+    @current_character.in?(Array.new(10) { |i| i.to_s })
+  end
+
+  def process_potential_numeral
+    process_current_character while current_character_is_a_digit?
+
+    if current_character_is_a_dot?
+      process_current_character
+      return if !current_character_is_a_digit?
+      process_current_character while current_character_is_a_digit?
+    end
+
+    if current_character_is_an_e?
+      process_current_character
+      process_current_character if current_character_is_a_sign?
+      return if !current_character_is_a_digit?
+      process_current_character while current_character_is_a_digit?
+    end
+
+    process_lexeme
   end
 
   def lexeme_might_be_a_literal?
@@ -245,12 +305,34 @@ class LexicalAnalyzer
 	end
 
   def update_current_state
+    @previous_state = @current_state
     @current_state = next_state
   end
 
   def add_current_character_to_buffer
     @buffer += @current_character
   end
+
+  def current_character_is_a_dot?
+    @current_character == '.'
+  end
+
+  def current_character_is_a_sign?
+    @current_character == '+' ||
+    @current_character == '-'
+  end
+
+  def current_character_is_an_e?
+    @current_character == 'e' ||
+    @current_character == 'E'
+  end
+
+
+
+
+
+
+
 
   def current_character_is_double_quotes?
     @current_character == "\""
@@ -300,7 +382,7 @@ class LexicalAnalyzer
 
   def log message
     puts '-' * 99
-    puts 'A TOKEN WAS FOUND'
+    puts message
     puts '-' * 99
   end
 end
