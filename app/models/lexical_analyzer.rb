@@ -1,15 +1,14 @@
 class LexicalAnalyzer
   attr_accessor :dfa, :symbol_table, :source_code, :cursor, :buffer,
                 :current_state, :previous_state, :current_character,
-                :errors
+                :error_helper, :errors
 
   def scan
     jump_ignorable_characters
-    print_info
     token = get_token
+    an_error_token_was_found?(token) ? treat_error : print_token(token)
     insert_token_in_symbol_table(token) if token_is_id?(token) &&
                                            !token.in?(@symbol_table)
-    treat_error if an_error_was_found?(token)
     reset_current_state
     clean_buffer
     return symbol_table_token(token) if token.in?(@symbol_table)
@@ -27,6 +26,7 @@ class LexicalAnalyzer
     @current_state = Dfa::INITIAL_STATE
     @previous_state = nil
     @current_character = source_code[cursor.index]
+    @error_helper = nil
     @errors = Array.new
   end
 
@@ -78,40 +78,39 @@ class LexicalAnalyzer
     token_by_current_state
   end
 
-  def an_error_was_found? token
+  def an_error_token_was_found? token
     token.token_class == 'ERRO'
   end
 
+  def an_error_causing_character_was_found?
+    @current_state == Dfa::ERROR_STATE &&
+    @previous_state != Dfa::ERROR_STATE
+  end
+
   def treat_error
-    message = nil
-    case @previous_state
-    when 's0'
-      message = error(1)
-    when 's1', 's2', 's5', 's6'
-      message = error(2)
-    when 's4'
-      message = error(3)
-    end
-    @errors << message
+    @errors << error
     puts @errors.last
   end
 
-  def error code
-    message = "ERRO#{code} - "
-    case code
+  def error
+    message = "ERRO#{@error_helper.code} - "
+    case @error_helper.code
     when 1
-      message += 'Caractere inesperado na linguagem'
+      message += "Caractere '#{@error_helper.guilty_character}'"
+      message += ' inesperado na linguagem'
     when 2
-      message += "Caractere inesperado em '#{@buffer}' ao invés de dígito"
+      message += "Caractere '#{@error_helper.guilty_character}'"
+      message += " inesperado em '#{@buffer}' ao invés de dígito"
     when 3
-      message += "Caractere inesperado em '#{@buffer}'"
-      message += " ao invés de dígito ou sinal ('+', '-')"
+      message += "Caractere '#{@error_helper.guilty_character}' inesperado"
+      message += " em '#{@buffer}' ao invés de dígito ou sinal ('+', '-')"
     end
-    message += ", linha #{@cursor.line}, coluna #{@cursor.column}"
+    message += ", linha #{@error_helper.line}, coluna #{@error_helper.column}"
   end
 
   def reset_current_state
     @current_state = Dfa::INITIAL_STATE
+    @previous_state = nil
   end
 
   def clean_buffer
@@ -163,9 +162,28 @@ class LexicalAnalyzer
   def process_current_character
     add_current_character_to_buffer
     update_current_state
+    instantiate_error_helper if an_error_causing_character_was_found?
     @cursor.update_position(@current_character)
     update_current_character
-    print_info
+  end
+
+  def instantiate_error_helper
+    code = nil
+    case @previous_state
+    when 's0'
+      code = 1
+    when 's1', 's2', 's5', 's6'
+      code = 2
+    when 's4'
+      code = 3
+    end
+
+    params = { code: code,
+               line: @cursor.line,
+               column: @cursor.column,
+               guilty_character: @current_character }
+
+    @error_helper = ErrorHelper.new(params)
   end
 
   def lexeme_might_be_a_numeral?
@@ -367,6 +385,10 @@ class LexicalAnalyzer
     current_character_is_parenthesis? ||
     current_character_is_a_relational_operator? ||
     current_character_is_an_arithmetic_operator?
+  end
+
+  def print_token token
+    puts "Classe: #{token.token_class}, Lexema: #{token.lexeme}, Tipo: #{token.type}"
   end
 
   def print_info
