@@ -5,13 +5,15 @@ class LexicalAnalyzer
 
   def scan
     jump_ignorable_characters
+    print_info
     token = get_token
-    an_error_token_was_found?(token) ? treat_error : print_token(token)
+    print_token(token)
+    add_error_to_errors_list if an_error_token_was_found?(token)
     insert_token_in_symbol_table(token) if token_is_id?(token) &&
                                            !token.in?(@symbol_table)
-    reset_current_state
+    @dfa.prepare_for_the_next_scan(@current_character)
     clean_buffer
-    return symbol_table_token(token) if token.in?(@symbol_table)
+    return get_token_from_symbol_table(token) if token.in?(@symbol_table)
     token
   end
 
@@ -23,24 +25,22 @@ class LexicalAnalyzer
     @source_code = args[:source_code]
     @cursor = Cursor.new
     @buffer = ''
-    @current_state = Dfa::INITIAL_STATE
-    @previous_state = nil
     @current_character = source_code[cursor.index]
     @error_helper = nil
     @errors = Array.new
   end
 
   def symbol_table_initial_configuration
-    reserved_words.map{ |reserved_word| token_by_reserved_word(reserved_word) }
+    reserved_words.map{ |reserved_word| create_token_from_reserved(reserved_word) }
   end
 
-  def token_by_reserved_word reserved_word
+  def create_token_from_reserved reserved_word
     Token.new(token_class: reserved_word,
               lexeme: reserved_word,
               type: 'NULL')
   end
 
-  def insert_token_in_symbol_table(token)
+  def insert_token_in_symbol_table token
     @symbol_table << token
   end
 
@@ -74,7 +74,7 @@ class LexicalAnalyzer
       process_lexeme
     end
 
-    return token_by_reserved_word(@buffer) if @buffer.in? reserved_words
+    return create_token_from_reserved(@buffer) if @buffer.in? reserved_words
     token_by_current_state
   end
 
@@ -82,103 +82,45 @@ class LexicalAnalyzer
     token.token_class == 'ERRO'
   end
 
-  def an_error_causing_character_was_found?
-    @current_state == Dfa::ERROR_STATE &&
-    @previous_state != Dfa::ERROR_STATE
+  def an_error_was_found?
+    @dfa.current_state == Dfa::ERROR_STATE &&
+    @dfa.previous_state != Dfa::ERROR_STATE
   end
 
-  def treat_error
-    @errors << error
-    puts @errors.last
+  def add_error_to_errors_list
+    @errors << @error_helper.error
+    error
   end
 
   def error
-    message = "ERRO#{@error_helper.code} - "
-    case @error_helper.code
-    when 1
-      message += "Caractere '#{@error_helper.guilty_character}'"
-      message += ' inesperado na linguagem'
-    when 2
-      message += "Caractere '#{@error_helper.guilty_character}'"
-      message += " inesperado em '#{@buffer}' ao invés de dígito"
-    when 3
-      message += "Caractere '#{@error_helper.guilty_character}' inesperado"
-      message += " em '#{@buffer}' ao invés de dígito ou sinal ('+', '-')"
-    end
-    message += ", linha #{@error_helper.line}, coluna #{@error_helper.column}"
-  end
-
-  def reset_current_state
-    @current_state = Dfa::INITIAL_STATE
-    @previous_state = nil
+    puts @errors.last
   end
 
   def clean_buffer
     @buffer = ''
   end
 
-  def symbol_table_token token
+  def get_token_from_symbol_table token
     @symbol_table.each do |tk|
       return tk if tk.lexeme == token.lexeme
     end
   end
 
-  def current_character_is_ignorable?
-    @current_character == "\s" ||
-    @current_character == "\t" ||
-    @current_character == "\n" ||
-    @current_character == "\r"
-  end
-
-  def update_current_character
-    @current_character = @source_code[@cursor.index]
-  end
-
-  def eof_has_been_reached?
-    @current_character.nil?
-  end
-
   def process_eof
-    update_current_state
-  end
-
-  def current_character_is_parenthesis?
-    @current_character == '(' ||
-    @current_character == ')'
-  end
-
-  def current_character_is_a_delimiter?
-    @current_character == ',' ||
-    @current_character == ';'
-  end
-
-  def current_character_is_an_arithmetic_operator?
-    @current_character == '+' ||
-    @current_character == '-' ||
-    @current_character == '*' ||
-    @current_character == '/'
+    @dfa.go_to_the_next_state(@current_character)
   end
 
   def process_current_character
     add_current_character_to_buffer
-    update_current_state
-    instantiate_error_helper if an_error_causing_character_was_found?
+    @dfa.go_to_the_next_state(@current_character)
+    instantiate_error_helper if an_error_was_found?
     @cursor.update_position(@current_character)
     update_current_character
+    print_info
   end
 
   def instantiate_error_helper
-    code = nil
-    case @previous_state
-    when 's0'
-      code = 1
-    when 's1', 's2', 's5', 's6'
-      code = 2
-    when 's4'
-      code = 3
-    end
-
-    params = { code: code,
+    params = { dfa: dfa,
                line: @cursor.line,
                column: @cursor.column,
                guilty_character: @current_character }
@@ -188,10 +130,6 @@ class LexicalAnalyzer
 
   def lexeme_might_be_a_numeral?
     current_character_is_a_digit?
-  end
-
-  def current_character_is_a_digit?
-    @current_character.in?(Array.new(10) { |i| i.to_s })
   end
 
   def process_potential_numeral
@@ -226,10 +164,6 @@ class LexicalAnalyzer
     end
 
     process_lexeme
-  end
-
-  def lexeme_might_be_a_comment?
-    @current_character == '{'
   end
 
   def process_potential_comment
@@ -287,7 +221,7 @@ class LexicalAnalyzer
   def token_by_current_state
     token_class = nil
 
-    case @current_state
+    case @dfa.current_state
     when Dfa::INITIAL_STATE
     when 's1', 's3', 's6'
       token_class = 'Num'
@@ -322,13 +256,63 @@ class LexicalAnalyzer
               type: 'NULL')
 	end
 
-  def update_current_state
-    @previous_state = @current_state
-    @current_state = next_state
-  end
-
   def add_current_character_to_buffer
     @buffer += @current_character
+  end
+
+  def process_lexeme
+    while(!lexeme_finished_being_processed?)
+      process_current_character
+    end
+  end
+
+  def lexeme_finished_being_processed?
+    eof_has_been_reached? ||
+    current_character_is_ignorable? ||
+    current_character_is_a_delimiter? ||
+    current_character_is_parenthesis? ||
+    current_character_is_a_relational_operator? ||
+    current_character_is_an_arithmetic_operator?
+  end
+
+  def current_character_is_ignorable?
+    @current_character == "\s" ||
+    @current_character == "\t" ||
+    @current_character == "\n" ||
+    @current_character == "\r"
+  end
+
+  def update_current_character
+    @current_character = @source_code[@cursor.index]
+  end
+
+  def eof_has_been_reached?
+    @current_character.nil?
+  end
+
+  def current_character_is_parenthesis?
+    @current_character == '(' ||
+    @current_character == ')'
+  end
+
+  def current_character_is_a_delimiter?
+    @current_character == ',' ||
+    @current_character == ';'
+  end
+
+  def current_character_is_an_arithmetic_operator?
+    @current_character == '+' ||
+    @current_character == '-' ||
+    @current_character == '*' ||
+    @current_character == '/'
+  end
+
+  def current_character_is_a_digit?
+    @current_character.in?(Array.new(10) { |i| i.to_s })
+  end
+
+  def lexeme_might_be_a_comment?
+    @current_character == '{'
   end
 
   def current_character_is_a_dot?
@@ -345,13 +329,6 @@ class LexicalAnalyzer
     @current_character == 'E'
   end
 
-
-
-
-
-
-
-
   def current_character_is_double_quotes?
     @current_character == "\""
   end
@@ -362,43 +339,18 @@ class LexicalAnalyzer
     @current_character == '='
   end
 
-  def process_lexeme
-    while(!lexeme_finished_being_processed?)
-      process_current_character
-    end
-  end
-
-  def next_state
-    transition_key = dfa.transition_key(@current_character, @current_state)
-
-    if dfa.transition_table[@current_state][transition_key].present?
-      dfa.transition_table[@current_state][transition_key]
-    else
-      Dfa::ERROR_STATE
-    end
-  end
-
-  def lexeme_finished_being_processed?
-    eof_has_been_reached? ||
-    current_character_is_ignorable? ||
-    current_character_is_a_delimiter? ||
-    current_character_is_parenthesis? ||
-    current_character_is_a_relational_operator? ||
-    current_character_is_an_arithmetic_operator?
-  end
-
   def print_token token
     puts "Classe: #{token.token_class}, Lexema: #{token.lexeme}, Tipo: #{token.type}"
   end
 
   def print_info
     puts '-' * 99
-    puts "current state: #{ (current_state.nil? ? 'nil' : current_state) }"
-    puts "current character: #{ (current_character.nil? ? 'nil' : current_character) }"
-    puts "buffer: #{buffer}"
-    puts "cursor index: #{cursor.index}"
-    puts "cursor line: #{cursor.line}"
-    puts "cursor column: #{cursor.column}"
+    puts "current state: #{(@dfa.current_state.nil? ? 'nil' : @dfa.current_state)}"
+    puts "current character: #{(current_character.nil? ? 'nil' : current_character)}"
+    puts "buffer: #{@buffer}"
+    puts "cursor index: #{@cursor.index}"
+    puts "cursor line: #{@cursor.line}"
+    puts "cursor column: #{@cursor.column}"
     puts '-' * 99
   end
 

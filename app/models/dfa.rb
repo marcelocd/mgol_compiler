@@ -4,6 +4,29 @@ class Dfa
   EOF_STATE = 's12'
 	ERROR_STATE = 's28'
 
+  attr_accessor :previous_state, :current_state, :next_state
+
+  def initialize args = {}
+    @previous_state = nil
+    @current_state = 's0'
+    @next_state = next_state(args[:current_character])
+  end
+
+  def go_to_the_next_state current_character
+    @previous_state = @current_state
+    @current_state = @next_state
+    @next_state = next_state(current_character)
+  end
+
+  def prepare_for_the_next_scan current_character
+    @current_state = INITIAL_STATE
+    @previous_state = nil
+    @current_character = current_character
+    @next_state = next_state(current_character)
+  end
+
+  private
+
   def transition_table
 		{
       INITIAL_STATE => {
@@ -91,13 +114,6 @@ class Dfa
     }
 	end
 
-  def is_final_state? state
-    non_final_states = [INITIAL_STATE, 's2', 's4', 's5', 's7', 's10', ERROR_STATE]
-
-    return false if state.in? non_final_states
-    true
-	end
-
   def transition_key character, state
     if character.nil?
       'EOF'
@@ -117,4 +133,21 @@ class Dfa
       character
     end
   end
+
+  def next_state current_character
+    transition_key = transition_key(current_character, @current_state)
+
+    if transition_table[@current_state][transition_key].present?
+      transition_table[@current_state][transition_key]
+    else
+      ERROR_STATE
+    end
+  end
+
+  def is_final_state? state
+    non_final_states = [INITIAL_STATE, 's2', 's4', 's5', 's7', 's10', ERROR_STATE]
+
+    return false if state.in? non_final_states
+    true
+	end
 end
