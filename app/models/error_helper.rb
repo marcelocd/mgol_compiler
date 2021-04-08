@@ -13,7 +13,7 @@ class ErrorHelper
     @guilty_character = args[:guilty_character]
 	end
 
-  def error
+  def error buffer
     message = "ERRO#{@code} - "
 
     case @code
@@ -22,12 +22,12 @@ class ErrorHelper
       message += ' inesperado na linguagem'
     when ErrorHelper::MISSING_DIGIT_ERROR_CODE
       message += "Caractere '#{@guilty_character}'"
-      message += " inesperado em '#{@buffer}' ao invés de dígito"
+      message += " inesperado em '#{buffer}' ao invés de dígito"
     when ErrorHelper::MISSING_DIGIT_OR_SIGN_ERROR_CODE
       message += "Caractere '#{@guilty_character}' inesperado"
-      message += " em '#{@buffer}' ao invés de dígito ou sinal ('+', '-')"
+      message += " em '#{buffer}' ao invés de dígito ou sinal ('+', '-')"
     when ErrorHelper::EOF_REACHED_ERROR_CODE
-      message += "Fim de arquivo alcançado antes de terminar o lexema #{@buffer}"
+      message += "Fim de arquivo alcançado antes de terminar o lexema #{buffer}"
     end
 
     message += ", linha #{@line}, coluna #{@column}"

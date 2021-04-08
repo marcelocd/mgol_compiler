@@ -4,25 +4,21 @@ class Dfa
   EOF_STATE = 's12'
 	ERROR_STATE = 's28'
 
-  attr_accessor :previous_state, :current_state, :next_state
+  attr_accessor :previous_state, :current_state
 
-  def initialize args = {}
+  def initialize
     @previous_state = nil
-    @current_state = 's0'
-    @next_state = next_state(args[:current_character])
+    @current_state = INITIAL_STATE
   end
 
   def go_to_the_next_state current_character
     @previous_state = @current_state
-    @current_state = @next_state
-    @next_state = next_state(current_character)
+    @current_state = next_state(current_character)
   end
 
   def prepare_for_the_next_scan current_character
     @current_state = INITIAL_STATE
     @previous_state = nil
-    @current_character = current_character
-    @next_state = next_state(current_character)
   end
 
   private

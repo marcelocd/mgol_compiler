@@ -5,7 +5,6 @@ class LexicalAnalyzer
 
   def scan
     jump_ignorable_characters
-    print_info
     token = get_token
     print_token(token)
     add_error_to_errors_list if an_error_token_was_found?(token)
@@ -50,7 +49,7 @@ class LexicalAnalyzer
 
   def jump_ignorable_characters
     while current_character_is_ignorable?
-      @cursor.update_position(@current_character)
+      @cursor.update_position(@current_character) if current_character_is_line_break?
       update_current_character
     end
   end
@@ -88,11 +87,11 @@ class LexicalAnalyzer
   end
 
   def add_error_to_errors_list
-    @errors << @error_helper.error
-    error
+    @errors << @error_helper.error(@buffer)
+    print_error
   end
 
-  def error
+  def print_error
     puts @errors.last
   end
 
@@ -116,7 +115,6 @@ class LexicalAnalyzer
     instantiate_error_helper if an_error_was_found?
     @cursor.update_position(@current_character)
     update_current_character
-    print_info
   end
 
   def instantiate_error_helper
@@ -260,12 +258,6 @@ class LexicalAnalyzer
     @buffer += @current_character
   end
 
-  def process_lexeme
-    while(!lexeme_finished_being_processed?)
-      process_current_character
-    end
-  end
-
   def lexeme_finished_being_processed?
     eof_has_been_reached? ||
     current_character_is_ignorable? ||
@@ -288,6 +280,11 @@ class LexicalAnalyzer
 
   def eof_has_been_reached?
     @current_character.nil?
+  end
+
+  def current_character_is_line_break?
+    @character == '\n' ||
+    @character == '\r'
   end
 
   def current_character_is_parenthesis?
