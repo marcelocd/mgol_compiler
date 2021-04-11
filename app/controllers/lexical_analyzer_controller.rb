@@ -11,7 +11,7 @@ class LexicalAnalyzerController < ActionController::Base
   private
 
   def source_code
-    @source_code ||= params[:source_code] || ''
+    @source_code ||= remove_double_line_breaks(params[:source_code]) || ''
   end
 
   def lexical_analyzer
@@ -30,5 +30,9 @@ class LexicalAnalyzerController < ActionController::Base
 
   def eof_has_been_reached?
     @tokens.last.token_class == 'EOF'
+  end
+
+  def remove_double_line_breaks string
+    string.gsub(/\r/, '') if string
   end
 end

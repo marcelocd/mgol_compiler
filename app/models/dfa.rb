@@ -139,11 +139,4 @@ class Dfa
       ERROR_STATE
     end
   end
-
-  def is_final_state? state
-    non_final_states = [INITIAL_STATE, 's2', 's4', 's5', 's7', 's10', ERROR_STATE]
-
-    return false if state.in? non_final_states
-    true
-	end
 end

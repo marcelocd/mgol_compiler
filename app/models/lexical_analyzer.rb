@@ -49,7 +49,7 @@ class LexicalAnalyzer
 
   def jump_ignorable_characters
     while current_character_is_ignorable?
-      @cursor.update_position(@current_character) if current_character_is_line_break?
+      @cursor.update_position(@current_character)
       update_current_character
     end
   end
@@ -61,13 +61,13 @@ class LexicalAnalyzer
           current_character_is_a_delimiter? ||
           current_character_is_an_arithmetic_operator?
       process_current_character
-    elsif lexeme_might_be_a_numeral?
+    elsif comming_lexeme_might_be_a_numeral?
       process_potential_numeral
-    elsif lexeme_might_be_a_literal?
+    elsif comming_lexeme_might_be_a_literal?
       process_potential_literal
-    elsif lexeme_might_be_a_comment?
+    elsif comming_lexeme_might_be_a_comment?
       process_potential_comment
-    elsif lexeme_might_be_a_relational_operator?
+    elsif comming_lexeme_might_be_a_relational_operator?
       process_potential_relational_operator
     else
       process_lexeme
@@ -84,6 +84,16 @@ class LexicalAnalyzer
   def an_error_was_found?
     @dfa.current_state == Dfa::ERROR_STATE &&
     @dfa.previous_state != Dfa::ERROR_STATE
+  end
+
+  def lexeme_is_an_unfinished_literal?
+    @buffer[0] == "\"" &&
+    eof_has_been_reached?
+  end
+
+  def lexeme_is_an_unfinished_comment?
+    @buffer[0] == '{' &&
+    eof_has_been_reached?
   end
 
   def add_error_to_errors_list
@@ -113,12 +123,12 @@ class LexicalAnalyzer
     add_current_character_to_buffer
     @dfa.go_to_the_next_state(@current_character)
     instantiate_error_helper if an_error_was_found?
-    @cursor.update_position(@current_character)
+    @cursor.update_position(@current_character) if !eof_has_been_reached?
     update_current_character
   end
 
   def instantiate_error_helper
-    params = { dfa: dfa,
+    params = { dfa: @dfa,
                line: @cursor.line,
                column: @cursor.column,
                guilty_character: @current_character }
@@ -126,7 +136,7 @@ class LexicalAnalyzer
     @error_helper = ErrorHelper.new(params)
   end
 
-  def lexeme_might_be_a_numeral?
+  def comming_lexeme_might_be_a_numeral?
     current_character_is_a_digit?
   end
 
@@ -149,7 +159,7 @@ class LexicalAnalyzer
     process_lexeme
   end
 
-  def lexeme_might_be_a_literal?
+  def comming_lexeme_might_be_a_literal?
     current_character_is_double_quotes?
   end
 
@@ -161,6 +171,10 @@ class LexicalAnalyzer
       process_current_character
     end
 
+    if lexeme_is_an_unfinished_literal?
+      instantiate_error_helper
+      return
+    end
     process_lexeme
   end
 
@@ -172,10 +186,14 @@ class LexicalAnalyzer
       process_current_character
     end
 
+    if lexeme_is_an_unfinished_comment?
+      instantiate_error_helper
+      return
+    end
     process_lexeme
   end
 
-  def lexeme_might_be_a_relational_operator?
+  def comming_lexeme_might_be_a_relational_operator?
     current_character_is_a_relational_operator?
   end
 
@@ -283,8 +301,8 @@ class LexicalAnalyzer
   end
 
   def current_character_is_line_break?
-    @character == '\n' ||
-    @character == '\r'
+    @character == "\n" ||
+    @character == "\r"
   end
 
   def current_character_is_parenthesis?
@@ -308,7 +326,7 @@ class LexicalAnalyzer
     @current_character.in?(Array.new(10) { |i| i.to_s })
   end
 
-  def lexeme_might_be_a_comment?
+  def comming_lexeme_might_be_a_comment?
     @current_character == '{'
   end
 

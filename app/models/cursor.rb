@@ -8,7 +8,6 @@ class Cursor
 	end
 
 	def update_position current_character
-    return if current_character.nil?
     @index += 1
     if character_is_line_break?(current_character)
       @line += 1
@@ -21,7 +20,7 @@ class Cursor
   private
 
   def character_is_line_break? character
-    character == '\n' ||
-    character == '\r'
+    character == "\n" ||
+    character == "\r"
   end
 end
