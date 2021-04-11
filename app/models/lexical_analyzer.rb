@@ -24,7 +24,7 @@ class LexicalAnalyzer
     @source_code = args[:source_code]
     @cursor = Cursor.new
     @buffer = ''
-    @current_character = source_code[cursor.index]
+    @current_character = @source_code[@cursor.index]
     @error_helper = nil
     @errors = Array.new
   end
