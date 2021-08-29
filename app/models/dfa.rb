@@ -1,8 +1,8 @@
 class Dfa
   INITIAL_STATE = 's0'
+  EOF_STATE = 's8'
 	ID_STATE = 's9'
-  EOF_STATE = 's12'
-	ERROR_STATE = 's28'
+	ERROR_STATE = 's24'
 
   attr_accessor :previous_state, :current_state
 
@@ -27,51 +27,52 @@ class Dfa
 		{
       INITIAL_STATE => {
 				"D"=> "s1",
-				"\"" => "s7",
-				"L"=> "s9",
-				"{"=> "s10",
 				"EOF" => EOF_STATE,
-				">" => "s13",
-				"=" => "s15",
+				"L"=> ID_STATE,
+        "IGNORABLE_CHARACTER" => "s7",
+				"'"=> "s10",
+				"\"" => "s11",
+				"{" => "s14",
 				"<" => "s16",
-				"+" => "s20",
-				"-" => "s21",
-				"*" => "s22",
-				"/" => "s23",
-				"(" => "s24",
-				")" => "s25",
-				";" => "s26",
-				"," => "s27",
-				"ERROR" => "s28"
+				">" => "s17",
+				"=" => "s18",
+				"+" => "s19",
+				"-" => "s19",
+				"*" => "s19",
+				"/" => "s19",
+				"(" => "s20",
+				")" => "s21",
+				"," => "s22",
+				";" => "s23",
+				"ERROR" => ERROR_STATE
 			},
 			"s1" => {
 				"D" => "s1",
         "." => "s2",
-        "e" => "s4",
-				"E" => "s4"
+        "e" => "s3",
+				"E" => "s3"
 			},
 			"s2" => {
-        "D" => "s3"
+        "D" => "s4"
       },
 			"s3" => {
-				"D" => "s3",
-				"e" => "s4",
-				"E" => "s4"
+				"D" => "s5",
+				"+" => "s6",
+				"-" => "s6"
 			},
 			"s4" => {
-				"+" => "s5",
-				"-" => "s5",
-				"D" => "s6"
+				"D" => "s4",
+				"e" => "s3",
+				"E" => "s3"
 			},
 			"s5" => {
-				"D" => "s6"
+				"D" => "s5"
 			},
 			"s6" => {
-				"D" => "s6"
+				"D" => "s5"
 			},
 			"s7" => {
-        "NON_DOUBLE_QUOTES" => "s7",
-				"\"" => "s8"
+        "IGNORABLE_CHARACTER" => "s7"
 			},
 			"s8" => { },
 			ID_STATE => {
@@ -80,32 +81,35 @@ class Dfa
 				"_" => ID_STATE
 			},
 			"s10" => {
-        "NON_CLOSING_BRACES" => "s10",
-				"}" => "s11"
+        "NON_SINGLE_QUOTE" => "s12"
 			},
-			"s11" => { },
-			EOF_STATE => { },
-			"s13" => {
-				"=" => "s14"
-			},
-			"s14" => { },
+			"s11" => {
+        "NON_DOUBLE_QUOTES" => "s11",
+        "\"" => "s13"
+      },
+			"s12" => {
+        "'" => "s13"
+      },
+			"s13" => { },
+			"s14" => {
+        "NON_CLOSING_BRACES" => "s14",
+        "}" => "s15"
+      },
 			"s15" => { },
 			"s16" => {
-				">" => "s17",
+				">" => "s18",
 				"-" => "s18",
-				"=" => "s19"
+				"=" => "s18"
 			},
-			"s17" => { },
+			"s17" => {
+        "=" => "s18"
+      },
 			"s18" => { },
 			"s19" => { },
 			"s20" => { },
 			"s21" => { },
 			"s22" => { },
 			"s23" => { },
-			"s24" => { },
-			"s25" => { },
-			"s26" => { },
-			"s27" => { },
 			ERROR_STATE => { }
     }
 	end
@@ -113,18 +117,23 @@ class Dfa
   def transition_key character, state
     if character.nil?
       'EOF'
-    elsif state == 's7'
+    elsif state == 's10'
+      return character if character == "'"
+      'NON_SINGLE_QUOTE'
+    elsif state == 's11'
       return character if character == "\""
       'NON_DOUBLE_QUOTES'
-    elsif state == 's10'
+    elsif state == 's14'
       return character if character == "}"
       'NON_CLOSING_BRACES'
     elsif character.match(/[0-9]/)
       'D'
     elsif character.match(/[a-zA-Z]/)
-      return character if state.in?(['s1', 's3']) &&
+      return character if state.in?(['s1', 's4']) &&
                           character.in?(['e', 'E'])
       'L'
+    elsif character.match(/[\s\t\n\r]/)
+      return 'IGNORABLE_CHARACTER'
     else
       character
     end
