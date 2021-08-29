@@ -4,6 +4,7 @@ class LexicalAnalyzer
                 :error_helper, :errors
 
   def scan
+    # print_info
     jump_ignorable_characters
     token = get_token
     print_token(token)
@@ -87,7 +88,8 @@ class LexicalAnalyzer
   end
 
   def lexeme_is_an_unfinished_literal?
-    @buffer[0] == "\"" &&
+    (@buffer[0] == "\"" ||
+     @buffer[0] == "'") &&
     eof_has_been_reached?
   end
 
@@ -125,6 +127,7 @@ class LexicalAnalyzer
     instantiate_error_helper if an_error_was_found?
     @cursor.update_position(@current_character) if !eof_has_been_reached?
     update_current_character
+    # print_info
   end
 
   def instantiate_error_helper
@@ -145,14 +148,20 @@ class LexicalAnalyzer
 
     if current_character_is_a_dot?
       process_current_character
-      return if !current_character_is_a_digit?
+      if !current_character_is_a_digit?
+        instantiate_error_helper
+        return
+      end
       process_current_character while current_character_is_a_digit?
     end
 
-    if current_character_is_an_e?
+    if current_character_is_an_e_or_E?
       process_current_character
       process_current_character if current_character_is_a_sign?
-      return if !current_character_is_a_digit?
+      if !current_character_is_a_digit?
+        instantiate_error_helper
+        return
+      end
       process_current_character while current_character_is_a_digit?
     end
 
@@ -160,21 +169,39 @@ class LexicalAnalyzer
   end
 
   def comming_lexeme_might_be_a_literal?
-    current_character_is_double_quotes?
+    current_character_is_double_quotes? ||
+    current_character_is_single_quote?
   end
 
   def process_potential_literal
     process_current_character
 
-    while(!current_character_is_double_quotes? &&
-          !eof_has_been_reached?)
+    case @buffer[0]
+    when "'"
+      if current_character_is_single_quote?
+        instantiate_error_helper
+        return
+      end
       process_current_character
+
+      if !current_character_is_single_quote?
+        instantiate_error_helper
+        return
+      end
+      process_current_character
+    when "\""
+      while(!current_character_is_double_quotes? &&
+            !eof_has_been_reached?)
+        process_current_character
+      end
     end
+
 
     if lexeme_is_an_unfinished_literal?
       instantiate_error_helper
       return
     end
+    
     process_lexeme
   end
 
@@ -226,11 +253,11 @@ class LexicalAnalyzer
      'se',
      'entao',
      'fimse',
-     'facaate',
-     'fimfaca',
+     'repita',
+     'fimrepita',
      'fim',
      'inteiro',
-     'lit',
+     'literal',
      'real']
   end
 
@@ -239,30 +266,30 @@ class LexicalAnalyzer
 
     case @dfa.current_state
     when Dfa::INITIAL_STATE
-    when 's1', 's3', 's6'
+    when 's1', 's4', 's5'
       token_class = 'Num'
-    when 's8'
-      token_class = 'Literal'
     when Dfa::ID_STATE
       token_class = 'id'
-    when 's11'
-      token_class = 'Comentário'
+    when 's13'
+      token_class = 'Literal'
     when Dfa::EOF_STATE
       token_class = 'EOF'
-    when 's13', 's14', 's15', 's16', 's17', 's19'
+    when 's15'
+      token_class = 'Comentário'
+    when 's16', 's17', 's18'
       token_class = 'OPR'
-    when 's18'
-      token_class = 'RCB'
-    when 's20', 's21', 's22', 's23'
+    when 's19'
       token_class = 'OPM'
-    when 's24'
+    when 's20'
       token_class = 'AB_P'
-    when 's25'
+    when 's21'
       token_class = 'FC_P'
-    when 's26'
-      token_class = 'PT_V'
-    when 's27'
+    when 's22'
       token_class = 'Vir'
+    when 's23'
+      token_class = 'PT_V'
+    when 's24'
+      token_class = 'RCB'
     else
       token_class = 'ERRO'
     end
@@ -282,7 +309,8 @@ class LexicalAnalyzer
     current_character_is_a_delimiter? ||
     current_character_is_parenthesis? ||
     current_character_is_a_relational_operator? ||
-    current_character_is_an_arithmetic_operator?
+    current_character_is_an_arithmetic_operator? ||
+    current_charcter_is_open_braces?
   end
 
   def current_character_is_ignorable?
@@ -290,6 +318,14 @@ class LexicalAnalyzer
     @current_character == "\t" ||
     @current_character == "\n" ||
     @current_character == "\r"
+  end
+
+  def current_charcter_is_open_braces?
+    @current_character == '{'
+  end
+
+  def current_character_is_single_quote?
+    @current_character == "'"
   end
 
   def update_current_character
@@ -339,7 +375,7 @@ class LexicalAnalyzer
     @current_character == '-'
   end
 
-  def current_character_is_an_e?
+  def current_character_is_an_e_or_E?
     @current_character == 'e' ||
     @current_character == 'E'
   end
