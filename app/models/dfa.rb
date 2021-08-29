@@ -2,7 +2,7 @@ class Dfa
   INITIAL_STATE = 's0'
   EOF_STATE = 's8'
 	ID_STATE = 's9'
-	ERROR_STATE = 's24'
+	ERROR_STATE = 's25'
 
   attr_accessor :previous_state, :current_state
 
@@ -98,8 +98,8 @@ class Dfa
 			"s15" => { },
 			"s16" => {
 				">" => "s18",
-				"-" => "s18",
-				"=" => "s18"
+				"=" => "s18",
+				"-" => "s24"
 			},
 			"s17" => {
         "=" => "s18"
@@ -110,6 +110,7 @@ class Dfa
 			"s21" => { },
 			"s22" => { },
 			"s23" => { },
+			"s24" => { },
 			ERROR_STATE => { }
     }
 	end
