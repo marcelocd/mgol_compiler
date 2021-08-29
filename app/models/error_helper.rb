@@ -43,6 +43,8 @@ class ErrorHelper
   def get_error_code dfa
     code = nil
     case dfa.current_state
+    when 's2', 's6'
+      code = MISSING_DIGIT_ERROR_CODE
     when 's10', 's12'
       code = EOF_REACHED_BEFORE_LITERAL_ENDED_OR_LENGTH_DIFFERENT_FROM_ONE_ERROR_CODE
     when 's11'
@@ -54,14 +56,12 @@ class ErrorHelper
     return code if code.present?
 
     case dfa.previous_state
-    when 's2', 's6'
-      code = MISSING_DIGIT_ERROR_CODE
     when 's3'
       code = MISSING_DIGIT_OR_SIGN_ERROR_CODE
     else
       code = UNEXPECTED_CHARACTER_ERROR_CODE
     end
-    
+
     code
   end
 end
