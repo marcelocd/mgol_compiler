@@ -16,3 +16,8 @@
 // const imagePath = (name) => images(name, true)
 
 console.log('Hello World from Webpacker')
+//= require @rails/ujs
+//= require turbolinks
+//= require @rails/activestorage
+//= require channels
+require("jquery")

@@ -1,4 +1,6 @@
 class LexicalAnalyzerController < ActionController::Base
+  layout 'application'
+  
   def index
     source_code
     lexical_analyzer
@@ -11,14 +13,14 @@ class LexicalAnalyzerController < ActionController::Base
   private
 
   def source_code
-    # OPTION 1 -------------
-    file = File.open(source_code_path)
-		@source_code = file.read
-		file.close
-    @source_code
-    
-    # OPTION 2 -------------
-    # @source_code ||= remove_double_line_breaks(params[:source_code]) || ''
+    if params[:source_code].present?
+      @source_code = remove_double_line_breaks(params[:source_code])
+    else
+      file = File.open(source_code_path)
+      @source_code = file.read
+      file.close    
+      @source_code
+    end 
   end
 
   def source_code_path

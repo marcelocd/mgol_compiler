@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  get '/home', to: 'compiler#home'
+  get '/', to: 'lexical_analyzer#index'
 
   resources :lexical_analyzer, only: :index
 end
