@@ -5,13 +5,13 @@ class LexicalAnalyzer
 
   def scan
     # print_info
-    jump_ignorable_characters
-    token = get_token
+    skip_ignorable_characters
+    token = get_token_skipping_comments
     print_token(token)
     add_error_to_errors_list if an_error_token_was_found?(token)
     insert_token_in_symbol_table(token) if token_is_id?(token) && !token.in?(@symbol_table)
     @dfa.prepare_for_the_next_scan(@current_character)
-    clean_buffer
+    clean_buffer  
     return get_token_from_symbol_table(token) if token.in?(@symbol_table)
     token
   end
@@ -30,10 +30,10 @@ class LexicalAnalyzer
   end
 
   def symbol_table_initial_configuration
-    reserved_words.map{ |reserved_word| create_token_from_reserved(reserved_word) }
+    reserved_words.map{ |reserved_word| create_token_from_reserved_word(reserved_word) }
   end
 
-  def create_token_from_reserved reserved_word
+  def create_token_from_reserved_word reserved_word
     Token.new(token_class: reserved_word,
               lexeme: reserved_word,
               type: 'NULL')
@@ -47,11 +47,22 @@ class LexicalAnalyzer
     token.token_class == 'id'
   end
 
-  def jump_ignorable_characters
+  def skip_ignorable_characters
     while current_character_is_ignorable?
       @cursor.update_position(@current_character)
       update_current_character
     end
+  end
+
+  def get_token_skipping_comments
+    token = get_token
+    while token_is_a_comment?(token) do
+      @dfa.prepare_for_the_next_scan(@current_character)
+      clean_buffer
+      skip_ignorable_characters
+      token = get_token
+    end
+    token
   end
 
   def get_token
@@ -73,7 +84,7 @@ class LexicalAnalyzer
       process_lexeme
     end
 
-    return create_token_from_reserved(@buffer) if @buffer.in? reserved_words
+    return create_token_from_reserved_word(@buffer) if @buffer.in? reserved_words
     token_by_current_state
   end
 
@@ -289,6 +300,10 @@ class LexicalAnalyzer
               lexeme: @buffer,
               type: 'NULL')
 	end
+
+  def token_is_a_comment? token
+    token.token_class == 'Comentário'
+  end
 
   def add_current_character_to_buffer
     @buffer += @current_character
