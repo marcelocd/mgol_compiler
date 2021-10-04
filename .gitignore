@@ -66,6 +66,7 @@ coverage
 .byebugrc
 .byebug_history
 .envrc
+.env
 
 lib/byebug/byebug.so
 lib/byebug/byebug.bundle
@@ -76,3 +77,6 @@ lib/byebug/byebug.bundle
 /yarn-error.log
 yarn-debug.log*
 .yarn-integrity
+
+config/secrets.yml
+config/database.yml
