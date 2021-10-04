@@ -9,8 +9,7 @@ class LexicalAnalyzer
     token = get_token
     print_token(token)
     add_error_to_errors_list if an_error_token_was_found?(token)
-    insert_token_in_symbol_table(token) if token_is_id?(token) &&
-                                           !token.in?(@symbol_table)
+    insert_token_in_symbol_table(token) if token_is_id?(token) && !token.in?(@symbol_table)
     @dfa.prepare_for_the_next_scan(@current_character)
     clean_buffer
     return get_token_from_symbol_table(token) if token.in?(@symbol_table)
@@ -83,19 +82,15 @@ class LexicalAnalyzer
   end
 
   def an_error_was_found?
-    @dfa.current_state == Dfa::ERROR_STATE &&
-    @dfa.previous_state != Dfa::ERROR_STATE
+    @dfa.current_state == Dfa::ERROR_STATE && @dfa.previous_state != Dfa::ERROR_STATE
   end
 
   def lexeme_is_an_unfinished_literal?
-    (@buffer[0] == "\"" ||
-     @buffer[0] == "'") &&
-    eof_has_been_reached?
+    (@buffer[0] == "\"" || @buffer[0] == "'") && eof_has_been_reached?
   end
 
   def lexeme_is_an_unfinished_comment?
-    @buffer[0] == '{' &&
-    eof_has_been_reached?
+    @buffer[0] == '{' && eof_has_been_reached?
   end
 
   def add_error_to_errors_list
@@ -169,8 +164,7 @@ class LexicalAnalyzer
   end
 
   def comming_lexeme_might_be_a_literal?
-    current_character_is_double_quotes? ||
-    current_character_is_single_quote?
+    current_character_is_double_quotes? || current_character_is_single_quote?
   end
 
   def process_potential_literal
@@ -190,12 +184,10 @@ class LexicalAnalyzer
       end
       process_current_character
     when "\""
-      while(!current_character_is_double_quotes? &&
-            !eof_has_been_reached?)
+      while(!current_character_is_double_quotes? && !eof_has_been_reached?)
         process_current_character
       end
     end
-
 
     if lexeme_is_an_unfinished_literal?
       instantiate_error_helper
@@ -208,8 +200,7 @@ class LexicalAnalyzer
   def process_potential_comment
     process_current_character
 
-    while(!(@current_character == '}') &&
-          !eof_has_been_reached?)
+    while(!(@current_character == '}') && !eof_has_been_reached?)
       process_current_character
     end
 
@@ -271,7 +262,7 @@ class LexicalAnalyzer
     when Dfa::ID_STATE
       token_class = 'id'
     when 's13'
-      token_class = 'Literal'
+      token_class = 'Lit'
     when Dfa::EOF_STATE
       token_class = 'EOF'
     when 's15'
@@ -347,8 +338,7 @@ class LexicalAnalyzer
   end
 
   def current_character_is_a_delimiter?
-    @current_character == ',' ||
-    @current_character == ';'
+    @current_character == ',' || @current_character == ';'
   end
 
   def current_character_is_an_arithmetic_operator?
