@@ -265,15 +265,25 @@ class LexicalAnalyzer
 
   def token_by_current_state
     token_class = nil
+    type = 'NULL'
 
     case @dfa.current_state
     when Dfa::INITIAL_STATE
-    when 's1', 's4', 's5'
+    when 's1'
+      token_class = 'Num'
+      type = 'Inteiro'
+    when 's4'
+      token_class = 'Num'
+      type = 'Real'
+    when 's5'
+      token_class = 'Num'
+    when 's1', 's4', 's5' 
       token_class = 'Num'
     when Dfa::ID_STATE
       token_class = 'id'
     when 's13'
-      token_class = 'Lit'
+      token_class = 'Literal'
+      type = 'Literal'
     when Dfa::EOF_STATE
       token_class = 'EOF'
     when 's15'
@@ -298,7 +308,7 @@ class LexicalAnalyzer
 
     Token.new(token_class: token_class,
               lexeme: @buffer,
-              type: 'NULL')
+              type: type)
 	end
 
   def token_is_a_comment? token
