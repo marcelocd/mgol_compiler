@@ -237,7 +237,7 @@ class SyntacticAnalyzer
             '33' => {
 				'left'  => 'CP_R',
 				'right' => 'ES CP_R'
-			},
+			}, 
             '34' => {
 				'left'  => 'CP_R',
 				'right' => 'CMD CP_R'
@@ -277,7 +277,7 @@ class SyntacticAnalyzer
         "se" => "s14"
       },
       "4" => {
-        "$" => "r2"		
+        "$" => "r1"		
       },
       "5" => {
         "fim" => "s9",
@@ -312,7 +312,7 @@ class SyntacticAnalyzer
         "se" => "s14"
       },
       "9" => {
-        "$" => "r38"
+        "$" => "r37"
       },
       "10" => {
         "id" => "s27"
@@ -338,7 +338,7 @@ class SyntacticAnalyzer
         "literal" => "s22"
       },
       "16" => {
-        "$" => "r3"
+        "$" => "r2"
       },
       "17" => {
         "PT_V" => "s41"			
@@ -350,30 +350,52 @@ class SyntacticAnalyzer
         "id" => "s43"
       },
       "20" => {
-        "id" => "r9"
+        "id" => "r8"
       },
       "21" => {
-        "id" => "r10"
+        "id" => "r9"
       },
       "22" => {
-        "id" => "r11"
+        "id" => "r10"
       },
       "23" => {
-        "$" => "r12"
+        "$" => "r11"
       },
       "24" => {
-        "$" => "r18"
+        "$" => "r17"
       },
       "25" => {
-        "$" => "r24"
+        "$" => "r23"
       },
       "26" => {
-        "$" => "r32"
+        "$" => "r31"
       },
       "27" => {
         "PT_V" => "s28"
       },
       "28" => {
+        "leia" => "r12",
+        "escreva" => "r12",	
+        "id" => "r12",	
+        "se" => "r12",	
+        "fim" => "r12",
+        "repita" => "r12",
+        "fimse" => "r12",
+        "fimrepita" => "r12"
+      },
+      "29" => {
+        "PT_V" => "s33"
+      },
+      "30" => {
+        "PT_V" => "r14"
+      },
+      "31" => {
+        "PT_V" => "r15"
+      },
+      "32" => {
+        "PT_V" => "r16"
+      },
+      "33" => {
         "leia" => "r13",
         "escreva" => "r13",	
         "id" => "r13",	
@@ -383,39 +405,18 @@ class SyntacticAnalyzer
         "fimse" => "r13",
         "fimrepita" => "r13"
       },
-      "29" => {
-        "PT_V" => "s33"
-      },
-      "30" => {
-        "PT_V" => "r15"
-      },
-      "31" => {
-        "PT_V" => "r16"
-      },
-      "32" => {
-        "PT_V" => "r17"
-      },
-      "33" => {
-        "leia" => "r14",
-        "escreva" => "r14",	
-        "id" => "r14",	
-        "se" => "r14",	
-        "fim" => "r14",
-        "repita" => "r14",
-        "fimse" => "r14",
-        "fimrepita" => "r14"
-      },
       "34" => {
-        "PT_V" => "r17"
+        "id" => "s46",
+        "num" => "s47"
       },
       "35" => {
-        "leia" => "r25",
-        "escreva" => "r25",	
-        "id" => "r25",	
-        "se" => "r25",	
-        "fim" => "r25",
-        "repita" => "r25",
-        "fimse" => "r25"
+        "leia" => "r24",
+        "escreva" => "r24",	
+        "id" => "r24",	
+        "se" => "r24",	
+        "fim" => "r24",
+        "repita" => "r24",
+        "fimse" => "r24"
       },
       "36" => {
         "fimse" => "s48"
@@ -427,32 +428,32 @@ class SyntacticAnalyzer
         "fimse" => "s48"
       },
       "39" => {
-        "leia" => "r25",
-        "escreva" => "r25",	
-        "id" => "r25",	
-        "se" => "r25",	
-        "fim" => "r25",
-        "repita" => "r25",
-        "fimse" => "r25"
+        "leia" => "r24",
+        "escreva" => "r24",	
+        "id" => "r24",	
+        "se" => "r24",	
+        "fim" => "r24",
+        "repita" => "r24",
+        "fimse" => "r24"
       },
       "40" => {
-        "id" => "r46",
+        "id" => "s46",
         "num" => "s47"
       },
       "41" => {
-        "leia" => "r5",
-        "escreva" => "r5",	
-        "id" => "r5",	
-        "se" => "r5",	
-        "fim" => "r5",
-        "repita" => "r5"
+        "leia" => "r4",
+        "escreva" => "r4",	
+        "id" => "r4",	
+        "se" => "r4",	
+        "fim" => "r4",
+        "repita" => "r4"
       },
       "42" => {
         "PT_V" => "s55"
       },
       "43" => {
         "VIR" => "s56",
-        "PT_V" => "r8"
+        "PT_V" => "r7"
       },
       "44" => {
         "PT_V" => "s59"
@@ -461,48 +462,18 @@ class SyntacticAnalyzer
         "OPM" => "s60"		
       },
       "46" => {
+        "OPM" => "r21",
+        "PT_V" => "r21",
+        "OPR" => "r21",
+        "FC_P" => "r21"
+      },
+      "47" => {
         "OPM" => "r22",
         "PT_V" => "r22",
         "OPR" => "r22",
         "FC_P" => "r22"
       },
-      "47" => {
-        "OPM" => "r23",
-        "PT_V" => "r23",
-        "OPR" => "r23",
-        "FC_P" => "r23"
-      },
       "48" => {
-        "leia" => "r31",
-        "escreva" => "r31",	
-        "id" => "r31",	
-        "se" => "r31",	
-        "fim" => "r31",
-        "repita" => "r31",
-        "fimse" => "r31",
-        "fimrepita" => "r31"
-      },
-      "49" => {
-        "leia" => "r28",
-        "escreva" => "r28",	
-        "id" => "r28",	
-        "se" => "r28",	
-        "fim" => "r28",
-        "repita" => "r28",
-        "fimse" => "r28",
-        "fimrepita" => "r28"
-      },
-      "50" => {
-        "leia" => "r29",
-        "escreva" => "r29",	
-        "id" => "r29",	
-        "se" => "r29",	
-        "fim" => "r29",
-        "repita" => "r29",
-        "fimse" => "r29",
-        "fimrepita" => "r29"
-      },
-      "51" => {
         "leia" => "r30",
         "escreva" => "r30",	
         "id" => "r30",	
@@ -512,6 +483,36 @@ class SyntacticAnalyzer
         "fimse" => "r30",
         "fimrepita" => "r30"
       },
+      "49" => {
+        "leia" => "r27",
+        "escreva" => "r27",	
+        "id" => "r27",	
+        "se" => "r27",	
+        "fim" => "r27",
+        "repita" => "r27",
+        "fimse" => "r27",
+        "fimrepita" => "r27"
+      },
+      "50" => {
+        "leia" => "r28",
+        "escreva" => "r28",	
+        "id" => "r28",	
+        "se" => "r28",	
+        "fim" => "r28",
+        "repita" => "r28",
+        "fimse" => "r28",
+        "fimrepita" => "r28"
+      },
+      "51" => {
+        "leia" => "r29",
+        "escreva" => "r29",	
+        "id" => "r29",	
+        "se" => "r29",	
+        "fim" => "r29",
+        "repita" => "r29",
+        "fimse" => "r29",
+        "fimrepita" => "r29"
+      },
       "52" => {
         "FC_P" => "s61"
       },	
@@ -519,41 +520,41 @@ class SyntacticAnalyzer
         "OPR" => "s62"
       },
       "54" => {
-        "leia" => "r35",
-        "escreva" => "r35",	
-        "id" => "r35",	
-        "se" => "r35",	
-        "fim" => "r35",
-        "repita" => "r35"
+        "leia" => "r34",
+        "escreva" => "r34",	
+        "id" => "r34",	
+        "se" => "r34",	
+        "fim" => "r34",
+        "repita" => "r34"
       },
       "55" => {
-        "leia" => "r36",
-        "escreva" => "r36",	
-        "id" => "r36",	
-        "se" => "r36",
-        "repita" => "r36",	
-        "fim" => "r36"
+        "leia" => "r5",
+        "escreva" => "r5",	
+        "id" => "r5",	
+        "se" => "r5",
+        "repita" => "r5",	
+        "fim" => "r5"
       },
       "56" => {
         "id" => "s58"
       },
       "57" => {
-        "inteiro" => "r7",	
-        "real" => "r7",
-        "literal" => "r7"
+        "inteiro" => "r6",	
+        "real" => "r6",
+        "literal" => "r6"
       },
       "58" => {
-        "$" => "r32"
+        "$" => "r7"
       },
       "59" => {
-        "leia" => "r19",
-        "escreva" => "r19",	
-        "id" => "r19",	
-        "se" => "r19",	
-        "fim" => "r19",
-        "repita" => "r19",
-        "fimse" => "r19",
-        "fimrepita" => "r19"
+        "leia" => "r18",
+        "escreva" => "r18",	
+        "id" => "r18",	
+        "se" => "r18",	
+        "fim" => "r18",
+        "repita" => "r18",
+        "fimse" => "r18",
+        "fimrepita" => "r18"
       },
       "60" => {
         "id" => "s46",
@@ -567,17 +568,17 @@ class SyntacticAnalyzer
         "num" => "s47"
       },
       "63" => {
-        "PT_V" => "r20"
+        "PT_V" => "r19"
       },
       "64" => {
-        "leia" => "r26",
-        "escreva" => "r26",	
-        "id" => "r26",	
-        "se" => "r26",	
-        "fimse" => "r26"
+        "leia" => "r25",
+        "escreva" => "r25",	
+        "id" => "r25",	
+        "se" => "r25",	
+        "fimse" => "r25"
       },
       "65" => {
-        "FC_P" => "r27"
+        "FC_P" => "r26"
       },
       "66" => {
         "AB_P" => "s67"
@@ -597,12 +598,12 @@ class SyntacticAnalyzer
         "se" => "s14"
       },
       "70" => {
-        "leia" => "r33",
-        "escreva" => "33",	
-        "id" => "r33",	
-        "se" => "r33",
-        "repita" => "r33",	
-        "fim" => "r33"
+        "leia" => "r32",
+        "escreva" => "32",	
+        "id" => "r32",	
+        "se" => "r32",
+        "repita" => "r32",	
+        "fim" => "r32"
       },
       "71" => {
         "fimrepita" => "s74",
@@ -626,20 +627,20 @@ class SyntacticAnalyzer
         "se" => "s14"
       },
       "74" => {
-        "leia" => "r37",
-        "escreva" => "r37",	
-        "id" => "r37",	
-        "se" => "r37",
-        "repita" => "r37",	
-        "fim" => "r37"
+        "leia" => "r36",
+        "escreva" => "r36",	
+        "id" => "r36",	
+        "se" => "r36",
+        "repita" => "r36",	
+        "fim" => "r36"
       },
       "75" => {
-        "leia" => "r34",
-        "escreva" => "r34",	
-        "id" => "r34",	
-        "se" => "r34",	
-        "fim" => "r34",
-        "repita" => "r34"
+        "leia" => "r33",
+        "escreva" => "r33",	
+        "id" => "r33",	
+        "se" => "r33",	
+        "fim" => "r33",
+        "repita" => "r33"
       }
 		}
 	end
