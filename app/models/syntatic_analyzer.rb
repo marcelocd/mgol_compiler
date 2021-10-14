@@ -1,6 +1,4 @@
-require "byebug"
-
-class SyntacticAnalyzer
+class SyntaticAnalyzer
 	attr_accessor :lex, :current_index, :syntactic_table,
 								:first_follow_table, :semantic_rules, :errors
 
@@ -24,13 +22,11 @@ class SyntacticAnalyzer
 	def analyse
 		stack = [INITIAL_STATE]
 
-		@ip = @lex.next_token
-
+		@ip = @lex.scan
 		loop do
 			s = stack.last
-			
-			a = @ip['token']
-
+			a = @ip.token_class
+      binding.pry
 			if(action(s, a) != nil)
 				if(action(s, a).match(/s/))
 					stack.push(a)
@@ -41,7 +37,7 @@ class SyntacticAnalyzer
 
 					#AQUI
 					# pilha_auxiliar << ip
-					@ip = @lex.next_token
+					@ip = @lex.scan
 				elsif(action(s, a).match(/r/))
 					goto_number = action(s, a).match(/\d+/)[0]
 					
@@ -75,9 +71,9 @@ class SyntacticAnalyzer
 
 					# ---------------------------
 					
-					@semantic_rules << "#{alpha} => #{beta}"
-					puts @semantic_rules.last
-					return if @ip['token'] == 'EOF'
+					# @semantic_rules << "#{alpha} => #{beta}"
+					# puts @semantic_rules.last
+					# return if @ip.token_class == 'EOF'
 				elsif(action(s, a) == 'acc')
 					break
 				else
@@ -85,12 +81,12 @@ class SyntacticAnalyzer
 				end
 			else
 				if(a == 'EOF')
-					@ip = @lex.next_token
+					@ip = @lex.scan
 					next
 				end
 
 				if(@ip.nil?)
-				# if((@ip = @lex.get_next_token).nil?)
+				# if((@ip = @lex.get_scan).nil?)
 					puts @ip
 					return 
 				end
@@ -232,7 +228,7 @@ class SyntacticAnalyzer
 			},
             '32' => {
 				'left'  => 'R',
-				'right' => 'repita AB_P EXP_R FC_P'
+				'right' => 'repita AB_P EXP_R FC_P CP_R'
 			},
             '33' => {
 				'left'  => 'CP_R',
@@ -741,17 +737,17 @@ class SyntacticAnalyzer
 
 	# FUNÇÕES DE ERRO -----------------------------
 	def treat_error
-		if(@ip['lexeme'] != '')
-			error = "Syntactic Error (line #{@ip['line']}, column #{@ip['column']}): unexpected '#{@ip['lexeme']}'."
+		if(@ip.lexeme != '')
+			error = "Syntactic Error (line #{@lex.cursor.line}, column #{@lex.cursor.column}): unexpected '#{@ip.lexeme}'."
 			
 			@errors << error
 		end
 
-		while @ip['token'] != 'PT_V' do
-			@ip = @lex.next_token
+		while @ip.token_class != 'PT_V' do
+			@ip = @lex.scan
 		end
 
-		@ip = @lex.next_token
+		@ip = @lex.scan
 	end
 
 	def print_errors

@@ -1,0 +1,19 @@
+<%= form_tag(current_uri, method: "get") do %>
+  <div class="form-group">
+    <%= label_tag 'Source Code' %>:&nbsp;&nbsp;&nbsp;
+    <button type="submit">
+      <%= 'Run' %>
+    </button>
+    <p>
+      <%= text_area_tag :source_code, @lexical_analyzer.source_code,
+                                      class: 'test',
+                                      rows: 50,
+                                      cols: 50 %>
+      <textarea rows="50" cols="100" readonly>
+        <% @tokens.each do |token| %>
+          <%= "Classe: #{token.token_class}, Lexema: #{token.lexeme}, Tipo: #{token.type}" %>
+        <% end if !@tokens.blank? %>
+      </textarea>
+    </p>
+  </div>
+<% end %>

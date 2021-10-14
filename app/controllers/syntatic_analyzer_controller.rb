@@ -4,10 +4,12 @@ class SyntaticAnalyzerController < ActionController::Base
     def index
       source_code
       lexical_analyzer
-      tokens
-      lexical_analyzer.errors.each do |error|
-        flash[:errors] = error
-      end
+      syntatic_analyzer
+      @syntatic_analyzer.analyse
+      # tokens
+      # lexical_analyzer.errors.each do |error|
+      #   flash[:errors] = error
+      # end
     end
   
     private
@@ -29,6 +31,10 @@ class SyntaticAnalyzerController < ActionController::Base
   
     def lexical_analyzer
       @lexical_analyzer ||= LexicalAnalyzer.new(source_code: source_code)
+    end
+
+    def syntatic_analyzer
+      @syntatic_analyzer ||= SyntaticAnalyzer.new(lex: @lexical_analyzer, errors: @lexical_analyzer.errors)
     end
   
     def tokens
