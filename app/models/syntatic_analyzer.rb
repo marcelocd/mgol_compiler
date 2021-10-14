@@ -657,27 +657,31 @@ class SyntacticAnalyzer
 			},
 			'V' => {
 				'first' => ['varinicio'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se']
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se','repita']
 			},
 			'LV' => {
-				'first' => ['varfim', 'id'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se']
+				'first' => ['varfim', 'inteiro','real','literal'],
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se','repita']
 			},
 			'D' => {
-				'first' => ['id'],
-				'follow' => ['varfim', 'id']
+				'first' => ['inteiro','real','literal'],
+				'follow' => ['varfim', 'inteiro', 'real','literal']
 			},
 			'TIPO' => {
-				'first' => ['int', 'real', 'lit'],
-				'follow' => ['PT_V']
+				'first' => ['inteiro', 'real', 'literal'],
+				'follow' => ['id']
 			},
 			'A' => {
-				'first' => ['fim', 'leia', 'escreva', 'id', 'se'],
+				'first' => ['fim', 'leia', 'escreva', 'id', 'se','repita'],
 				'follow' => ['$']
 			},
+      'L' => {
+        'first' => ['id'],
+        'follow' => ['PT_V']
+      },
 			'ES' => {
 				'first' => ['leia', 'escreva'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse']
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse','repita']
 			},
 			'ARG' => {
 				'first' => ['lit', 'num', 'id'],
@@ -685,7 +689,7 @@ class SyntacticAnalyzer
 			},
 			'CMD' => {
 				'first' => ['id'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse']
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse','repita']
 			},
 			'LD' => {
 				'first' => ['id', 'num'],
@@ -693,13 +697,13 @@ class SyntacticAnalyzer
 			},
 			'OPRD' => {
 				'first' => ['id', 'num'],
-				'follow' => ['OPM', 'PT_V', 'OPR', 'FC_P']
+				'follow' => ['OPM', 'PT_V']
 			},
 			'COND' => {
 				'first' => ['se'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse']
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse', 'repita']
 			},
-			'CABEÇALHO' => {
+			'CAB' => {
 				'first' => ['se'],
 				'follow' => ['leia', 'escreva', 'id', 'fimse', 'se']
 			},
@@ -707,9 +711,17 @@ class SyntacticAnalyzer
 				'first' => ['id', 'num'],
 				'follow' => ['FC_P']
 			},
-			'CORPO' => {
+			'CP' => {
 				'first' => ['leia', 'escreva', 'id', 'fimse', 'se'],
-				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse']
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'fimse', 'repita']
+			},
+      'R' => {
+				'first' => ['repita'],
+				'follow' => ['fim', 'leia', 'escreva', 'id', 'se', 'repita']
+			},
+      'CP_R' => {
+				'first' => ['leia', 'escreva', 'id', 'fimrepita', 'se'],
+				'follow' => []
 			}
 		}
 	end
